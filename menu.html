@@ -38,15 +38,24 @@
     <section id="menu" class="menu-page">
         <h2>Menu Banana King Chips</h2>
         
-        <div class="add-item-form">
-            <h3>Tambah Item Menu Baru</h3>
-            <input type="text" id="add-nama-item" placeholder="Nama Item" required>
-            <textarea id="add-deskripsi" placeholder="Deskripsi"></textarea>
-            <input type="number" id="add-harga" placeholder="Harga" min="0" required>
-            <input type="text" id="add-gambar" placeholder="Nama File Gambar (contoh: banana_original.png)">
-            <button id="btn-add-item">Tambah Menu</button>
+        <button id="toggle-add-form" class="btn" style="margin-bottom: 30px;">Tambah Menu Baru</button>
+
+        <div id="add-form-container" class="hidden-form-container"> <div class="add-item-form">
+                <h3>Tambah Item Menu Baru</h3>
+                <input type="text" id="add-nama-item" placeholder="Nama Item" required>
+                <textarea id="add-deskripsi" placeholder="Deskripsi"></textarea>
+                <input type="number" id="add-harga" placeholder="Harga" required> 
+                
+                <div class="file-input-wrapper">
+                    <input type="file" id="add-gambar" accept="image/*" class="hidden-file-input">
+                    <label for="add-gambar" class="custom-file-button">Tambahkan Foto</label>
+                    <span id="file-name-display">Tidak ada file dipilih</span>
+                </div>
+                <button id="btn-add-item">Tambah Menu</button>
+            </div>
+            <hr style="margin: 40px auto; width: 80%;">
         </div>
-        <hr style="margin: 40px auto; width: 80%;">
+        
 
         <div class="menu-items">
             </div>

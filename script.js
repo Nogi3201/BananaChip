@@ -96,15 +96,27 @@ document.getElementById('btn-add-item').addEventListener('click', async function
         const result = await response.json();
 
         if (result.success) {
-            alert(successMessage); // Anda bisa mengganti ini dengan notifikasi yang lebih baik
+            alert(result.message); // Anda bisa mengganti ini dengan notifikasi yang lebih baik
             // Bersihkan form dan atur ulang tombol
             document.getElementById('add-nama-item').value = '';
             document.getElementById('add-deskripsi').value = '';
             document.getElementById('add-harga').value = '';
             document.getElementById('add-gambar').value = ''; // Reset input file
+            // Reset tampilan nama file
+            document.getElementById('file-name-display').textContent = 'Tidak ada file dipilih';
             btn.textContent = 'Tambah Menu';
             delete btn.dataset.editingId; // Hapus data-editingId
             loadMenuItems(); // Muat ulang menu setelah penambahan/pembaruan
+            
+            // Sembunyikan formulir setelah berhasil menambahkan/memperbarui
+            const formContainer = document.getElementById('add-form-container');
+            const toggleButton = document.getElementById('toggle-add-form');
+            if (formContainer && toggleButton) {
+                formContainer.classList.remove('visible-form-container');
+                formContainer.classList.add('hidden-form-container');
+                toggleButton.textContent = 'Tambah Menu Baru'; 
+            }
+
         } else {
             alert(errorMessage + result.message); // Anda bisa mengganti ini dengan notifikasi yang lebih baik
         }
@@ -188,15 +200,28 @@ document.querySelector('.menu-items').addEventListener('click', function(event) 
         const nama = btn.dataset.nama;
         const deskripsi = btn.dataset.deskripsi;
         const harga = btn.dataset.harga;
-        const gambar = btn.dataset.gambar;
+        const gambar = btn.dataset.gambar; // Ambil nama gambar yang sudah ada dari dataset
 
-        // Isi formulir tambah/edit
+        // Tampilkan formulir
+        const formContainer = document.getElementById('add-form-container');
+        const toggleButton = document.getElementById('toggle-add-form');
+        if (formContainer && toggleButton) {
+            formContainer.classList.remove('hidden-form-container');
+            formContainer.classList.add('visible-form-container');
+            toggleButton.textContent = 'Sembunyikan Formulir'; 
+        }
+
+        // Isi formulir dengan data item yang akan diedit
         document.getElementById('add-nama-item').value = nama;
         document.getElementById('add-deskripsi').value = deskripsi;
         document.getElementById('add-harga').value = harga;
-        // Tidak mengisi input file, karena keamanan browser melarangnya.
-        // Pengguna harus memilih file baru jika ingin mengubah gambar.
-        // document.getElementById('add-gambar').value = ''; // Opsional: kosongkan input file
+        
+        // Atur tampilan nama file yang sudah ada
+        const fileNameDisplay = document.getElementById('file-name-display');
+        if (fileNameDisplay) {
+            fileNameDisplay.textContent = gambar || 'Tidak ada file dipilih'; // Tampilkan nama gambar lama
+        }
+        document.getElementById('add-gambar').value = ''; // Kosongkan input file asli untuk upload baru
 
         // Ubah tombol tambah menjadi tombol update
         const addItemBtn = document.getElementById('btn-add-item');
@@ -206,7 +231,7 @@ document.querySelector('.menu-items').addEventListener('click', function(event) 
 
     // Handle Delete button click
     if (event.target.classList.contains('delete-btn')) {
-        const id = event.target.dataset.id;
+        const id = event.target.dataset.id; 
         if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
             (async () => {
                 try {
@@ -231,5 +256,61 @@ document.querySelector('.menu-items').addEventListener('click', function(event) 
                 }
             })();
         }
+    }
+});
+
+// JavaScript untuk menampilkan/menyembunyikan formulir dan mengelola input file kustom
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('toggle-add-form');
+    const formContainer = document.getElementById('add-form-container');
+    const fileInput = document.getElementById('add-gambar'); // Ambil input file
+    const fileNameDisplay = document.getElementById('file-name-display'); // Ambil span untuk menampilkan nama file
+
+    // Inisialisasi awal formulir (tersembunyi) dan tombol
+    if (formContainer) {
+        formContainer.classList.add('hidden-form-container'); // Pastikan tersembunyi di awal
+    }
+    if (toggleButton) {
+        toggleButton.textContent = 'Tambah Menu Baru'; // Pastikan teks awal benar
+    }
+
+
+    if (toggleButton && formContainer) {
+        toggleButton.addEventListener('click', function() {
+            if (formContainer.classList.contains('hidden-form-container')) {
+                formContainer.classList.remove('hidden-form-container');
+                formContainer.classList.add('visible-form-container');
+                toggleButton.textContent = 'Sembunyikan Formulir'; // Ubah teks tombol
+            } else {
+                formContainer.classList.remove('visible-form-container');
+                formContainer.classList.add('hidden-form-container');
+                toggleButton.textContent = 'Tambah Menu Baru'; // Ubah teks tombol
+                // Bersihkan formulir saat disembunyikan
+                document.getElementById('add-nama-item').value = '';
+                document.getElementById('add-deskripsi').value = '';
+                document.getElementById('add-harga').value = '';
+                if (fileInput) { // Pastikan elemen ada sebelum diakses
+                    fileInput.value = ''; 
+                }
+                if (fileNameDisplay) { // Pastikan elemen ada sebelum diakses
+                    fileNameDisplay.textContent = 'Tidak ada file dipilih'; 
+                }
+                // Reset status tombol ke "Tambah Menu" (bukan "Update Menu")
+                const addItemBtn = document.getElementById('btn-add-item');
+                addItemBtn.textContent = 'Tambah Menu';
+                delete addItemBtn.dataset.editingId;
+            }
+        });
+    }
+
+    // Event listener untuk memperbarui nama file yang dipilih pada input file kustom
+    if (fileInput && fileNameDisplay) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name; // Tampilkan nama file yang dipilih
+            } else {
+                fileNameDisplay.textContent = 'Tidak ada file dipilih'; // Jika tidak ada file dipilih
+            }
+        });
     }
 });
