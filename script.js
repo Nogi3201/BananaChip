@@ -28,6 +28,10 @@ async function loadMenuItems() {
                         <input type="number" value="0" min="0" data-nama="${item.nama_item}" data-harga="${item.harga}">
                         <button onclick="tambah(this)">+</button>
                     </div>
+                    <div class="admin-controls" style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                        <button class="edit-btn" data-id="${item.id}" data-nama="${item.nama_item}" data-deskripsi="${item.deskripsi}" data-harga="${item.harga}" data-gambar="${item.gambar}" style="padding: 8px 15px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">Edit</button>
+                        <button class="delete-btn" data-id="${item.id}" style="padding: 8px 15px; background: #F44336; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+                    </div>
                 `;
                 menuItemsContainer.appendChild(itemDiv);
             });
@@ -42,47 +46,71 @@ async function loadMenuItems() {
 document.addEventListener('DOMContentLoaded', loadMenuItems);
 
 
-// Fungsi untuk menambah item menu baru
+// Fungsi untuk menambah atau memperbarui item menu baru
 document.getElementById('btn-add-item').addEventListener('click', async function() {
+    const btn = this;
+    const editingId = btn.dataset.editingId; // Periksa apakah kita dalam mode edit
+
     const namaItem = document.getElementById('add-nama-item').value;
     const deskripsi = document.getElementById('add-deskripsi').value;
     const harga = document.getElementById('add-harga').value;
-    const gambar = document.getElementById('add-gambar').value;
+    const gambarInput = document.getElementById('add-gambar'); // Ambil elemen input file
+    const gambarFile = gambarInput.files[0]; // Ambil file pertama yang dipilih
 
     if (!namaItem || !harga) {
         alert("Nama item dan harga tidak boleh kosong!");
         return;
     }
 
+    // Buat objek FormData
+    const formData = new FormData();
+    formData.append('nama_item', namaItem);
+    formData.append('deskripsi', deskripsi);
+    formData.append('harga', parseFloat(harga));
+    if (gambarFile) { // Jika ada file gambar yang dipilih
+        formData.append('gambar', gambarFile); // Tambahkan file ke FormData
+    }
+    
+    let url = '';
+    let successMessage = '';
+    let errorMessage = '';
+
+    if (editingId) {
+        url = 'update_menu.php';
+        formData.append('id', editingId); // Tambahkan ID untuk update
+        successMessage = 'Item menu berhasil diperbarui!';
+        errorMessage = 'Gagal memperbarui item: ';
+    } else {
+        url = 'add_menu.php';
+        successMessage = 'Item menu berhasil ditambahkan!';
+        errorMessage = 'Gagal menambah item: ';
+    }
+
     try {
-        const response = await fetch('add_menu.php', {
+        const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nama_item: namaItem,
-                deskripsi: deskripsi,
-                harga: parseFloat(harga),
-                gambar: gambar
-            })
+            // Hapus baris 'Content-Type': 'application/json'
+            // Browser akan secara otomatis mengatur Content-Type untuk FormData
+            body: formData // Kirim FormData
         });
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
-            // Bersihkan form
+            alert(successMessage); // Anda bisa mengganti ini dengan notifikasi yang lebih baik
+            // Bersihkan form dan atur ulang tombol
             document.getElementById('add-nama-item').value = '';
             document.getElementById('add-deskripsi').value = '';
             document.getElementById('add-harga').value = '';
-            document.getElementById('add-gambar').value = '';
-            loadMenuItems(); // Muat ulang menu setelah penambahan
+            document.getElementById('add-gambar').value = ''; // Reset input file
+            btn.textContent = 'Tambah Menu';
+            delete btn.dataset.editingId; // Hapus data-editingId
+            loadMenuItems(); // Muat ulang menu setelah penambahan/pembaruan
         } else {
-            alert("Gagal menambah item: " + result.message);
+            alert(errorMessage + result.message); // Anda bisa mengganti ini dengan notifikasi yang lebih baik
         }
     } catch (error) {
-        console.error('Error saat menambah item menu:', error);
-        alert('Terjadi kesalahan saat mencoba menambah item menu.');
+        console.error('Error selama operasi menu:', error);
+        alert('Terjadi kesalahan saat mencoba memproses item menu.');
     }
 });
 
@@ -148,5 +176,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert("Mohon isi semua kolom sebelum mengirim.");
             }
         });
+    }
+});
+
+// Event listener untuk tombol edit dan delete (menggunakan delegasi event)
+document.querySelector('.menu-items').addEventListener('click', function(event) {
+    // Handle Edit button click
+    if (event.target.classList.contains('edit-btn')) {
+        const btn = event.target;
+        const id = btn.dataset.id;
+        const nama = btn.dataset.nama;
+        const deskripsi = btn.dataset.deskripsi;
+        const harga = btn.dataset.harga;
+        const gambar = btn.dataset.gambar;
+
+        // Isi formulir tambah/edit
+        document.getElementById('add-nama-item').value = nama;
+        document.getElementById('add-deskripsi').value = deskripsi;
+        document.getElementById('add-harga').value = harga;
+        // Tidak mengisi input file, karena keamanan browser melarangnya.
+        // Pengguna harus memilih file baru jika ingin mengubah gambar.
+        // document.getElementById('add-gambar').value = ''; // Opsional: kosongkan input file
+
+        // Ubah tombol tambah menjadi tombol update
+        const addItemBtn = document.getElementById('btn-add-item');
+        addItemBtn.textContent = 'Update Menu';
+        addItemBtn.dataset.editingId = id; // Simpan ID item yang sedang diedit
+    }
+
+    // Handle Delete button click
+    if (event.target.classList.contains('delete-btn')) {
+        const id = event.target.dataset.id;
+        if (confirm('Apakah Anda yakin ingin menghapus item ini?')) {
+            (async () => {
+                try {
+                    const response = await fetch('delete_menu.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: id })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message); // Ganti dengan notifikasi yang lebih baik
+                        loadMenuItems(); // Muat ulang menu
+                    } else {
+                        alert("Gagal menghapus item: " + result.message); // Ganti dengan notifikasi yang lebih baik
+                    }
+                } catch (error) {
+                    console.error('Error saat menghapus item menu:', error);
+                    alert('Terjadi kesalahan saat mencoba menghapus item menu.');
+                }
+            })();
+        }
     }
 });
