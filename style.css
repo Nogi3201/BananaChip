@@ -5,13 +5,11 @@
     box-sizing: border-box;
 }
 
-
 /* Style dasar body dan font */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
 }
-
 
 /* Header dan navbar */
 header {
@@ -23,7 +21,6 @@ header {
     z-index: 999;
     transition: 0.4s;
 }
-
 
 /* Navbar container */
 .navbar {
@@ -523,177 +520,4 @@ section {
         flex-direction: column;
         align-items: center;
     }
-}
-/* Menghilangkan spinner pada input type="number" */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type=number] {
-    -moz-appearance: textfield;
-}
-
-/* Gaya baru untuk formulir "Tambah Item Menu Baru" (add-item-form) */
-.add-item-form {
-    background: #ffffff; /* Latar belakang putih untuk formulir */
-    padding: 30px;
-    border-radius: 15px; /* Sudut lebih membulat */
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08); /* Bayangan yang lebih menonjol */
-    max-width: 800px; /* Batasi lebar formulir */
-    margin: 40px auto; /* Pusatkan formulir dan beri jarak */
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Dua kolom untuk input */
-    gap: 20px; /* Jarak antar elemen */
-    align-items: center; /* Pusatkan secara vertikal */
-}
-
-.add-item-form h3 {
-    grid-column: 1 / -1; /* Judul membentang seluruh kolom */
-    font-size: 28px;
-    color: #bf9000; /* Warna judul sesuai tema */
-    margin-bottom: 20px;
-}
-
-.add-item-form input[type="text"],
-.add-item-form input[type="number"],
-.add-item-form textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #e0e0e0; /* Border abu-abu terang */
-    border-radius: 8px; /* Sudut input membulat */
-    font-size: 16px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.add-item-form input[type="text"]:focus,
-.add-item-form input[type="number"]:focus,
-.add-item-form textarea:focus {
-    border-color: #ffc107; /* Border kuning saat fokus */
-    box-shadow: 0 0 0 3px rgba(255,193,7,0.3); /* Bayangan kuning saat fokus */
-    outline: none; /* Hilangkan outline default */
-}
-
-/* Gaya khusus untuk textarea (deskripsi) */
-.add-item-form textarea {
-    grid-column: 1 / -1; /* Membentang seluruh kolom */
-    min-height: 100px; /* Tinggi minimum */
-    resize: vertical; /* Hanya bisa di-resize secara vertikal */
-}
-
-/* Gaya untuk input file (Choose File) */
-.add-item-form input[type="file"] {
-    grid-column: 1 / -1; /* Membentang seluruh kolom */
-    padding: 10px 0; /* Padding vertikal */
-}
-
-/* Gaya tombol "Tambah Menu" */
-#btn-add-item {
-    grid-column: 1 / -1; /* Membentang seluruh kolom */
-    padding: 15px 30px;
-    background: #ffeb3b; /* Warna kuning terang */
-    color: #3e2723; /* Warna teks cokelat gelap */
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px; /* Sudut lebih membulat */
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(255,235,59,0.4); /* Bayangan kuning */
-}
-
-#btn-add-item:hover {
-    background: #ffd600; /* Warna kuning lebih gelap saat hover */
-    transform: translateY(-2px); /* Sedikit naik saat hover */
-    box-shadow: 0 6px 12px rgba(255,235,59,0.6); /* Bayangan lebih besar saat hover */
-}
-
-/* Gaya untuk tombol Edit dan Delete yang dinamis (dibuat oleh JS) */
-.admin-controls .edit-btn,
-.admin-controls .delete-btn {
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.admin-controls .edit-btn {
-    background: #2196F3; /* Biru */
-    color: white;
-}
-
-.admin-controls .delete-btn {
-    background: #F44336; /* Merah */
-    color: white;
-}
-
-.admin-controls .edit-btn:hover,
-.admin-controls .delete-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-}
-
-/* Penyesuaian responsif untuk formulir */
-@media (max-width: 768px) {
-    .add-item-form {
-        grid-template-columns: 1fr; /* Satu kolom untuk input pada layar kecil */
-        padding: 20px;
-        margin: 20px auto;
-    }
-}
-/* Gaya untuk menyembunyikan/menampilkan formulir tambah item */
-.hidden-form-container {
-    display: none;
-}
-
-.visible-form-container {
-    display: block; /* Atau display: grid jika Anda ingin layout grid */
-}
-/* Gaya untuk input file kustom */
-.file-input-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 100%; /* Agar memenuhi lebar kolom grid */
-    grid-column: 1 / -1; /* Membentang seluruh kolom */
-    margin-bottom: 10px; /* Jarak bawah */
-}
-
-.hidden-file-input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0; /* Sembunyikan input asli */
-    cursor: pointer;
-    z-index: 10; /* Pastikan di atas label */
-}
-
-.custom-file-button {
-    display: inline-block;
-    padding: 12px 15px;
-    background: #ffeb3b; /* Warna kuning */
-    color: #3e2723; /* Warna teks gelap */
-    font-weight: bold;
-    border-radius: 8px; /* Sudut membulat */
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.custom-file-button:hover {
-    background: #ffd600; /* Kuning lebih gelap saat hover */
-    transform: translateY(-1px);
-}
-
-#file-name-display {
-    display: block; /* Tampilkan di baris baru */
-    margin-top: 8px;
-    font-size: 14px;
-    color: #5d4037;
-    word-break: break-all; /* Agar nama file panjang tidak keluar batas */
 }
