@@ -1,0 +1,84 @@
+name: Deploy to CPanel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: 'Deployment type'
+        required: true
+        default: 'incremental'
+        type: choice
+        options:
+          - incremental
+          - full
+          - force_all_php
+      force_upload:
+        description: 'Force upload all PHP files (if auto-detection fails)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2  # Get last 2 commits for diff
+
+    - name: Determine deployment mode
+      id: deploy_mode
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          DEPLOY_TYPE="${{ github.event.inputs.deployment_type }}"
+        else
+          DEPLOY_TYPE="incremental"
+        fi
+        echo "deployment_type=$DEPLOY_TYPE" >> $GITHUB_OUTPUT
+        echo "🚀 Deployment mode: $DEPLOY_TYPE"
+
+    - name: FTP Sync (PHP Non-Laravel Project)
+      id: sync_deploy
+      uses: nick-fields/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        retry_wait_seconds: 20
+        command: |
+          sudo apt-get update && sudo apt-get install -y lftp
+
+          echo "📂 Syncing PHP project to CPanel via FTP..."
+
+          lftp -e "
+          set ftp:ssl-allow no;
+          set ftp:passive-mode on;
+          set net:timeout 60;
+          set net:max-retries 3;
+          set net:reconnect-interval-base 5;
+          open ftp://${{ secrets.USERNAME }}:${{ secrets.PASSWORD }}@${{ secrets.SERVER }};
+          cd /public_html/;
+          lcd ./;
+
+          mirror --reverse --only-newer --verbose --parallel=2 \
+            --exclude-glob .git* \
+            --exclude-glob .github/ \
+            --exclude-glob README.md \
+            --exclude-glob deploy.yml;
+
+          quit
+          "
+
+          echo "✅ FTP sync completed!"
+
+    - name: Deployment Summary
+      if: always()
+      run: |
+        echo "✅ Deployment process completed."
+        echo "🎯 All relevant PHP files synced to the server."
